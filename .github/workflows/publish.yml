@@ -67,6 +67,9 @@ jobs:
           cp config.example.json deploy/windows/install.ps1 deploy/windows/uninstall.ps1 windows-package/
           cp internal/platformintegration/assets/cpho-health-agent.ico windows-package/
           (cd windows-package && zip -9 -r ../release/health-agent-windows-amd64.zip .)
+          mkdir -p cmd/windows-installer/payload
+          cp windows-package/* cmd/windows-installer/payload/
+          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-H=windowsgui" -o release/CPHO-Health-Agent-Setup.exe ./cmd/windows-installer
           GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o release/health-agent-linux-amd64 ./cmd/gateway-agent
           GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o linux-package/usr/local/bin/health-agent-updater ./cmd/agent-updater
           cp release/health-agent-linux-amd64 linux-package/usr/local/bin/health-agent
