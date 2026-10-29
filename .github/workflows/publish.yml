@@ -65,6 +65,7 @@ jobs:
           GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o windows-package/agent-updater.exe ./cmd/agent-updater
           cp release/health-agent-windows-amd64.exe windows-package/health-agent.exe
           cp config.example.json deploy/windows/install.ps1 deploy/windows/uninstall.ps1 windows-package/
+          cp internal/platformintegration/assets/cpho-health-agent.ico windows-package/
           (cd windows-package && zip -9 -r ../release/health-agent-windows-amd64.zip .)
           GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o release/health-agent-linux-amd64 ./cmd/gateway-agent
           GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o linux-package/usr/local/bin/health-agent-updater ./cmd/agent-updater
