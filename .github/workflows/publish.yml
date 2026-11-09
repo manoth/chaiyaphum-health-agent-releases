@@ -78,8 +78,12 @@ jobs:
           mkdir -p cmd/windows-installer/payload
           cp windows-package/* cmd/windows-installer/payload/
           GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-H=windowsgui -X main.version=$version" -o release/CPHO-Health-Agent-Setup.exe ./cmd/windows-installer
-          GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o release/health-agent-linux-amd64 ./cmd/gateway-agent
-          GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o linux-package/usr/local/bin/health-agent-updater ./cmd/agent-updater
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o release/health-agent-linux-amd64 ./cmd/gateway-agent
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o linux-package/usr/local/bin/health-agent-updater ./cmd/agent-updater
+          if file release/health-agent-linux-amd64 linux-package/usr/local/bin/health-agent-updater | grep -q 'dynamically linked'; then
+            echo 'Linux release binaries must be statically linked' >&2
+            exit 1
+          fi
           cp release/health-agent-linux-amd64 linux-package/usr/local/bin/health-agent
           cp deploy/linux/*.service deploy/linux/*.timer linux-package/etc/systemd/system/
           cp config.example.json linux-package/usr/share/doc/health-agent/config.example.json
