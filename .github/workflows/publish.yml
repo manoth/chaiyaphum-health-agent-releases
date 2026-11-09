@@ -51,6 +51,12 @@ jobs:
           go-version-file: source/go.mod
           cache-dependency-path: source/go.sum
 
+      - name: Install Linux packaging tools
+        if: steps.release.outputs.exists != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm
+
       - name: Test and build Windows and Linux
         if: steps.release.outputs.exists != 'true'
         env:
@@ -82,6 +88,15 @@ jobs:
           printf 'Package: health-agent\nVersion: %s\nSection: admin\nPriority: optional\nArchitecture: amd64\nMaintainer: Chaiyaphum Provincial Health Office\nDescription: Secure outbound health data gateway\n' "$version" > linux-package/DEBIAN/control
           dpkg-deb --build --root-owner-group linux-package release/health-agent-linux-amd64.deb
           tar -C linux-package -czf release/health-agent-linux-amd64.tar.gz usr/local/bin etc/systemd/system usr/share/doc/health-agent
+          rpm_root="$PWD/rpmbuild"
+          mkdir -p "$rpm_root"/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+          cp release/health-agent-linux-amd64 "$rpm_root/SOURCES/health-agent"
+          cp linux-package/usr/local/bin/health-agent-updater "$rpm_root/SOURCES/health-agent-updater"
+          cp deploy/linux/health-agent.service deploy/linux/health-agent-update.service deploy/linux/health-agent-update.timer "$rpm_root/SOURCES/"
+          cp config.example.json "$rpm_root/SOURCES/config.example.json"
+          sed "s/__VERSION__/$version/g" deploy/linux/health-agent.spec > "$rpm_root/SPECS/health-agent.spec"
+          rpmbuild --define "_topdir $rpm_root" -bb "$rpm_root/SPECS/health-agent.spec"
+          cp "$rpm_root/RPMS/x86_64/health-agent-$version-1"*.rpm release/health-agent-linux-amd64.rpm
 
       - name: Sign release manifest
         if: steps.release.outputs.exists != 'true'
