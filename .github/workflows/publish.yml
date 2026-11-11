@@ -69,7 +69,7 @@ jobs:
           mkdir -p release windows-package linux-package/DEBIAN linux-package/usr/local/bin linux-package/etc/systemd/system linux-package/usr/share/doc/health-agent
           GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o release/health-agent-windows-amd64.exe ./cmd/gateway-agent
           GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o windows-package/agent-updater.exe ./cmd/agent-updater
-          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-H=windowsgui" -o windows-package/health-agent-ui.exe ./cmd/agent-ui
+          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-H=windowsgui -X main.version=$version" -o windows-package/health-agent-ui.exe ./cmd/agent-ui
           GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-H=windowsgui" -o windows-package/agent-guardian.exe ./cmd/agent-guardian
           cp release/health-agent-windows-amd64.exe windows-package/health-agent.exe
           cp config.example.json deploy/windows/install.ps1 deploy/windows/uninstall.ps1 windows-package/
