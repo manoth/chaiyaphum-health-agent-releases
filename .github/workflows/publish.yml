@@ -79,8 +79,9 @@ jobs:
           cp windows-package/* cmd/windows-installer/payload/
           GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-H=windowsgui -X main.version=$version" -o release/CPHO-Health-Agent-Setup.exe ./cmd/windows-installer
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o release/health-agent-linux-amd64 ./cmd/gateway-agent
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags "-X main.version=$version" -o release/health-agent-linux-arm64 ./cmd/gateway-agent
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-X main.version=$version" -o linux-package/usr/local/bin/health-agent-updater ./cmd/agent-updater
-          if file release/health-agent-linux-amd64 linux-package/usr/local/bin/health-agent-updater | grep -q 'dynamically linked'; then
+          if file release/health-agent-linux-amd64 release/health-agent-linux-arm64 linux-package/usr/local/bin/health-agent-updater | grep -q 'dynamically linked'; then
             echo 'Linux release binaries must be statically linked' >&2
             exit 1
           fi
